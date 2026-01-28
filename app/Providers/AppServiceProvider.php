@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register biometric enrollment event listener
+        \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\SetBiometricEnrollmentFlag::class);
     }
 }

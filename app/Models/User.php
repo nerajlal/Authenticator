@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the biometric credentials for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function biometricCredentials()
+    {
+        return $this->hasMany(BiometricCredential::class);
+    }
 }
