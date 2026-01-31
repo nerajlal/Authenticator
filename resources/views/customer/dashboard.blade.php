@@ -168,5 +168,27 @@
 
     <!-- Load biometric login script -->
     <script src="{{ asset('js/biometric-login.js') }}"></script>
+    
+    @if(session('biometric_enrollment_pending'))
+        <script>
+            console.log('[Biometric] Enrollment pending flag detected!');
+            // Set flag for biometric enrollment
+            window.biometricEnrollmentPending = true;
+            
+            // Wait for script to load and trigger enrollment
+            setTimeout(function() {
+                console.log('[Biometric] Triggering enrollment check...');
+                if (typeof window.initBiometricLogin === 'function') {
+                    window.initBiometricLogin();
+                } else {
+                    console.error('[Biometric] initBiometricLogin function not found!');
+                }
+            }, 1000);
+        </script>
+        @php
+            // Clear the flag after displaying
+            session()->forget('biometric_enrollment_pending');
+        @endphp
+    @endif
 </body>
 </html>
