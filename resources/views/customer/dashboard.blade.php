@@ -151,7 +151,10 @@
             @else
                 <div class="empty-state">
                     <p>No biometric credentials registered yet.</p>
-                    <p style="font-size: 13px; margin-top: 0.5rem;">Log out and log back in to set up biometric authentication.</p>
+                    <p style="font-size: 13px; margin-top: 0.5rem;">Click the button below to set up biometric authentication.</p>
+                    <button onclick="enrollBiometric()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #5c6ac4 0%, #4959bd 100%); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;">
+                        🔐 Enable Biometric Login
+                    </button>
                 </div>
             @endif
         </div>
@@ -168,6 +171,97 @@
 
     <!-- Load biometric login script -->
     <script src="{{ asset('js/biometric-login.js') }}"></script>
+    
+    <script>
+        // Manual enrollment function
+        async function enrollBiometric() {
+            console.log('[Manual] Starting biometric enrollment...');
+            
+            // Check if WebAuthn is supported
+            if (!window.PublicKeyCredential) {
+                alert('❌ Biometric authentication is not supported on this device/browser.');
+                return;
+            }
+            
+            // Check if script loaded
+            if (typeof window.initBiometricLogin !== 'function') {
+                alert('❌ Biometric script not loaded. Please refresh the page.');
+                return;
+            }
+            
+            try {
+                // Get registration options from server
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+                
+                const optionsResponse = await fetch('/api/biometric/register-options', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!optionsResponse.ok) {
+                    throw new Error('Failed to get registration options');
+                }
+                
+                const { options } = await optionsResponse.json();
+                console.log('[Manual] Got registration options:', options);
+                
+                // Prepare options for WebAuthn
+                options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                options.user.id = Uint8Array.from(atob(options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                
+                // Trigger device biometric prompt
+                alert('📱 Your device will now prompt for biometric authentication (fingerprint/Face ID)');
+                
+                const credential = await navigator.credentials.create({
+                    publicKey: options
+                });
+                
+                console.log('[Manual] Credential created:', credential);
+                
+                // Prepare credential for API
+                const credentialData = {
+                    id: credential.id,
+                    rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                    type: credential.type,
+                    response: {
+                        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, ''),
+                        attestationObject: btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+                    }
+                };
+                
+                // Verify with server
+                const verifyResponse = await fetch('/api/biometric/register-verify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(credentialData)
+                });
+                
+                if (!verifyResponse.ok) {
+                    throw new Error('Failed to verify credential');
+                }
+                
+                const result = await verifyResponse.json();
+                console.log('[Manual] Enrollment successful:', result);
+                
+                alert('✅ Biometric login enabled successfully! Refreshing page...');
+                window.location.reload();
+                
+            } catch (error) {
+                console.error('[Manual] Enrollment error:', error);
+                alert('❌ Failed to enable biometric login: ' + error.message);
+            }
+        }
+    </script>
     
     @if(session('biometric_enrollment_pending'))
         <script>
