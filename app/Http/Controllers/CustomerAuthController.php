@@ -64,9 +64,15 @@ class CustomerAuthController extends Controller
 
         // Log the user in
         Auth::login($user);
+        
+        // Regenerate session BEFORE firing event
+        $request->session()->regenerate();
 
         // Fire the Registered event to trigger biometric enrollment
         event(new \Illuminate\Auth\Events\Registered($user));
+        
+        // Force save session to ensure flag persists
+        $request->session()->save();
 
         return redirect()->route('customer.dashboard');
     }
