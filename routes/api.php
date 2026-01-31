@@ -18,7 +18,7 @@ use App\Http\Controllers\BiometricAuthController;
 Route::prefix('biometric')->name('biometric.')->group(function () {
     
     // Registration endpoints - require authenticated user
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
         Route::post('/register-options', [BiometricAuthController::class, 'registerOptions'])
             ->name('register.options');
         Route::post('/register-verify', [BiometricAuthController::class, 'registerVerify'])
@@ -34,10 +34,16 @@ Route::prefix('biometric')->name('biometric.')->group(function () {
     });
     
     // Get user's registered credentials - requires auth
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware(['auth'])->group(function () {
         Route::get('/credentials', [BiometricAuthController::class, 'getCredentials'])
             ->name('credentials.list');
         Route::delete('/credentials/{id}', [BiometricAuthController::class, 'deleteCredential'])
             ->name('credentials.delete');
     });
+    
+    // Enrollment completion endpoint (clears session flag)
+    Route::post('/enrollment-complete', function() {
+        session()->forget('biometric_enrollment_pending');
+        return response()->json(['success' => true]);
+    })->name('enrollment.complete');
 });
