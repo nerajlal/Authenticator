@@ -271,13 +271,25 @@
             
             // Wait for script to load and trigger enrollment
             setTimeout(function() {
-                console.log('[Biometric] Triggering enrollment check...');
+                console.log('[Biometric] Checking if biometric script loaded...');
+                
+                // Check if the biometric script has defined the global functions
                 if (typeof window.initBiometricLogin === 'function') {
-                    window.initBiometricLogin();
+                    console.log('[Biometric] Script loaded, showing enrollment popup...');
+                    // The script auto-checks on init, but let's trigger it again to be sure
+                    const event = new CustomEvent('biometricEnrollmentReady');
+                    window.dispatchEvent(event);
+                    
+                    // Also directly show popup if function exists
+                    if (window.biometricEnrollmentPending) {
+                        // Call init again to check the flag
+                        window.initBiometricLogin();
+                    }
                 } else {
-                    console.error('[Biometric] initBiometricLogin function not found!');
+                    console.error('[Biometric] Script not loaded! Checking file path...');
+                    console.error('[Biometric] Expected script at: {{ asset('js/biometric-login.js') }}');
                 }
-            }, 1000);
+            }, 1500); // Increased delay to ensure script loads
         </script>
         @php
             // Clear the flag after displaying
