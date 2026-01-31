@@ -65,8 +65,8 @@ class CustomerAuthController extends Controller
         // Log the user in
         Auth::login($user);
 
-        // The Registered event will be fired automatically by Laravel
-        // which will trigger our biometric enrollment listener
+        // Fire the Registered event to trigger biometric enrollment
+        event(new \Illuminate\Auth\Events\Registered($user));
 
         return redirect()->route('customer.dashboard');
     }
