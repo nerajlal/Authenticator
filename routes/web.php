@@ -9,6 +9,11 @@ Route::get('/', function () {
 
 Route::get('/admin/users', [App\Http\Controllers\AdminController::class, 'index']);
 
+// Diagnostic route
+Route::get('/diagnostic', function () {
+    return view('diagnostic');
+})->middleware('auth')->name('diagnostic');
+
 // Customer Authentication Routes
 Route::prefix('customer')->name('customer.')->group(function () {
     // Guest routes
