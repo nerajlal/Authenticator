@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Allow Shopify to embed the app in iframe
+        $middleware->appendToGroup('web', \App\Http\Middleware\AllowShopifyEmbedding::class);
         // Register biometric enrollment popup injection middleware for web routes
         $middleware->appendToGroup('web', \App\Http\Middleware\InjectBiometricEnrollmentPopup::class);
     })
