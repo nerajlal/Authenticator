@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Set default string length for MySQL compatibility
+        Schema::defaultStringLength(191);
+        
         // Register biometric enrollment event listener
         \Illuminate\Support\Facades\Event::subscribe(\App\Listeners\SetBiometricEnrollmentFlag::class);
     }
