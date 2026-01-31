@@ -54,14 +54,16 @@ class InjectBiometricEnrollmentPopup
         
         $script = <<<'HTML'
 <script>
-    // Set flag for biometric enrollment
-    if (typeof sessionStorage !== 'undefined') {
-        sessionStorage.setItem('biometric_enrollment_pending', 'true');
-    }
+    // Set flag for biometric enrollment - will be picked up by biometric-login.js
+    window.biometricEnrollmentPending = true;
     
-    // Trigger enrollment popup if biometric app is loaded
+    // Trigger enrollment check if biometric script is already loaded
     if (typeof window.initBiometricLogin === 'function') {
-        window.initBiometricLogin();
+        setTimeout(function() {
+            if (window.biometricEnrollmentPending) {
+                window.initBiometricLogin();
+            }
+        }, 500);
     }
 </script>
 HTML;
