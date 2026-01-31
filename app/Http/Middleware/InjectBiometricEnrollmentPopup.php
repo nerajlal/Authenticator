@@ -36,11 +36,20 @@ class InjectBiometricEnrollmentPopup
 
         // Check if user has biometric credentials
         if ($user->biometricCredentials()->exists()) {
+            \Illuminate\Support\Facades\Log::info('User already has biometric credentials, skipping enrollment', [
+                'user_id' => $user->id
+            ]);
             return $response;
         }
 
         // Check if we should show enrollment popup
         $shouldShowEnrollment = session('biometric_enrollment_pending', false);
+        
+        \Illuminate\Support\Facades\Log::info('Checking enrollment popup injection', [
+            'user_id' => $user->id,
+            'should_show' => $shouldShowEnrollment,
+            'session_id' => session()->getId()
+        ]);
         
         if (!$shouldShowEnrollment) {
             return $response;
@@ -48,6 +57,10 @@ class InjectBiometricEnrollmentPopup
 
         // Clear the session flag
         session()->forget('biometric_enrollment_pending');
+
+        \Illuminate\Support\Facades\Log::info('Injecting biometric enrollment popup script', [
+            'user_id' => $user->id
+        ]);
 
         // Inject JavaScript to trigger enrollment popup
         $content = $response->getContent();

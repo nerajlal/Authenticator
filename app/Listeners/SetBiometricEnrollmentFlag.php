@@ -27,11 +27,13 @@ class SetBiometricEnrollmentFlag
         }
 
         // Set session flag to show enrollment popup
-        session(['biometric_enrollment_pending' => true]);
+        session()->put('biometric_enrollment_pending', true);
+        session()->save(); // Force immediate save
 
         Log::info('Biometric enrollment flag set for user after login', [
             'user_id' => $user->id,
-            'email' => $user->email
+            'email' => $user->email,
+            'session_id' => session()->getId()
         ]);
     }
 
@@ -43,11 +45,13 @@ class SetBiometricEnrollmentFlag
         $user = $event->user;
 
         // Set session flag to show enrollment popup
-        session(['biometric_enrollment_pending' => true]);
+        session()->put('biometric_enrollment_pending', true);
+        session()->save(); // Force immediate save
 
         Log::info('Biometric enrollment flag set for user after registration', [
             'user_id' => $user->id,
-            'email' => $user->email
+            'email' => $user->email,
+            'session_id' => session()->getId()
         ]);
     }
 
