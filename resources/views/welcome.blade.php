@@ -3,168 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biometric Authentication - Authenticator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Biometric Authentication</title>
+    <link rel="stylesheet" href="https://unpkg.com/@shopify/polaris@12.0.0/build/esm/styles.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+            background: #f6f6f7;
+        }
+        .Polaris-Page {
+            padding: 2rem;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #008060;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .feature-card {
+            background: white;
+            border: 1px solid #e1e3e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #202223;
+        }
+        .feature-card p {
+            margin: 0;
+            font-size: 13px;
+            color: #6d7175;
+            line-height: 1.5;
+        }
+        .api-endpoint {
+            background: #f6f6f7;
+            border: 1px solid #e1e3e5;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            font-family: Monaco, Consolas, monospace;
+            font-size: 12px;
+        }
+        .method-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .method-post { background: #e3f1df; color: #108043; }
+        .method-get { background: #e0f5fa; color: #006fbb; }
+        .method-delete { background: #fbeae5; color: #d72c0d; }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-white to-purple-50 min-h-screen">
-    <div class="container mx-auto px-4 py-12">
+<body>
+    <div class="Polaris-Page">
         <!-- Header -->
-        <div class="text-center mb-12">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl mb-6 shadow-lg">
-                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
+        <div style="margin-bottom: 2rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #5c6ac4 0%, #4959bd 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="24" height="24" fill="white" viewBox="0 0 20 20">
+                        <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #202223;">Biometric Authentication</h1>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 14px; color: #6d7175;">Secure fingerprint and Face ID login for your store</p>
+                </div>
             </div>
-            <h1 class="text-5xl font-bold text-gray-900 mb-4">
-                Biometric Authentication
-            </h1>
-            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Secure, fast, and seamless login experience using fingerprint and Face ID technology
-            </p>
         </div>
 
         <!-- Status Card -->
-        <div class="max-w-4xl mx-auto mb-8">
-            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-900">System Status</h2>
-                    <span class="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                        Active
-                    </span>
+        <div style="background: white; border: 1px solid #e1e3e5; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 16px; font-weight: 600; color: #202223;">System Status</h2>
+                <span class="status-badge" style="background: #e3f1df; color: #108043; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500;">
+                    <span class="status-dot"></span>
+                    Active
+                </span>
+            </div>
+            
+            <div class="grid-3">
+                <div style="text-align: center; padding: 1rem; background: #f6f6f7; border-radius: 8px;">
+                    <div style="font-size: 28px; margin-bottom: 0.5rem;">✓</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #202223; margin-bottom: 0.25rem;">Laravel Backend</div>
+                    <div style="font-size: 12px; color: #6d7175;">v{{ app()->version() }}</div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-                        <div class="text-3xl font-bold text-indigo-600 mb-2">✓</div>
-                        <div class="text-sm font-medium text-gray-700">Laravel Backend</div>
-                        <div class="text-xs text-gray-500 mt-1">v{{ app()->version() }}</div>
-                    </div>
-                    
-                    <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
-                        <div class="text-3xl font-bold text-purple-600 mb-2">✓</div>
-                        <div class="text-sm font-medium text-gray-700">Database Connected</div>
-                        <div class="text-xs text-gray-500 mt-1">MySQL Ready</div>
-                    </div>
-                    
-                    <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl">
-                        <div class="text-3xl font-bold text-green-600 mb-2">✓</div>
-                        <div class="text-sm font-medium text-gray-700">Shopify Embedded</div>
-                        <div class="text-xs text-gray-500 mt-1">Ready to Use</div>
-                    </div>
+                <div style="text-align: center; padding: 1rem; background: #f6f6f7; border-radius: 8px;">
+                    <div style="font-size: 28px; margin-bottom: 0.5rem;">✓</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #202223; margin-bottom: 0.25rem;">Database Connected</div>
+                    <div style="font-size: 12px; color: #6d7175;">MySQL Ready</div>
+                </div>
+                
+                <div style="text-align: center; padding: 1rem; background: #f6f6f7; border-radius: 8px;">
+                    <div style="font-size: 28px; margin-bottom: 0.5rem;">✓</div>
+                    <div style="font-size: 13px; font-weight: 600; color: #202223; margin-bottom: 0.25rem;">Shopify Embedded</div>
+                    <div style="font-size: 12px; color: #6d7175;">Ready to Use</div>
                 </div>
             </div>
         </div>
 
-        <!-- Features Grid -->
-        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
-                    </svg>
+        <!-- Features Section -->
+        <div style="margin-bottom: 2rem;">
+            <h2 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 600; color: #202223;">Features</h2>
+            
+            <div class="grid-2">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #e0f5fa; color: #006fbb;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.625 2.655A9 9 0 0119 11a1 1 0 11-2 0 7 7 0 00-9.625-6.492 1 1 0 11-.75-1.853zM4.662 4.959A1 1 0 014.75 6.37 6.97 6.97 0 003 11a1 1 0 11-2 0 8.97 8.97 0 012.25-5.953 1 1 0 011.412-.088z" clip-rule="evenodd"/>
+                            <path fill-rule="evenodd" d="M5 11a5 5 0 1110 0 1 1 0 11-2 0 3 3 0 10-6 0c0 1.677-.345 3.276-.968 4.729a1 1 0 11-1.838-.789A9.964 9.964 0 005 11z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>Fingerprint Login</h3>
+                    <p>Secure authentication using device fingerprint sensors with WebAuthn technology</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Fingerprint Login</h3>
-                <p class="text-gray-600 text-sm">Secure authentication using device fingerprint sensors</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #f1e0ff; color: #6d28d9;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>Face ID Support</h3>
+                    <p>Fast facial recognition authentication on supported iOS and Android devices</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Face ID Support</h3>
-                <p class="text-gray-600 text-sm">Fast facial recognition on supported devices</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                    </svg>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #e3f1df; color: #108043;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>WebAuthn Security</h3>
+                    <p>Industry-standard FIDO2 authentication protocol with hardware-backed security</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">WebAuthn Security</h3>
-                <p class="text-gray-600 text-sm">Industry-standard FIDO2 authentication protocol</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #fff4e6; color: #f59e0b;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>Lightning Fast</h3>
+                    <p>One-click login experience without typing passwords or remembering credentials</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Lightning Fast</h3>
-                <p class="text-gray-600 text-sm">One-click login without typing passwords</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #fee2e2; color: #dc2626;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7 2a2 2 0 00-2 2v12a2 2 0 002 2h6a2 2 0 002-2V4a2 2 0 00-2-2H7zm3 14a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>Cross-Device</h3>
+                    <p>Works seamlessly on mobile phones, tablets, and desktop computers</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Cross-Device</h3>
-                <p class="text-gray-600 text-sm">Works on mobile, tablet, and desktop devices</p>
-            </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow border border-gray-100">
-                <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #e0e7ff; color: #4f46e5;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h3>Fallback Support</h3>
+                    <p>Traditional password login always available as a backup option</p>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Fallback Support</h3>
-                <p class="text-gray-600 text-sm">Traditional password login always available</p>
             </div>
         </div>
 
         <!-- API Endpoints -->
-        <div class="max-w-4xl mx-auto">
-            <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                <h2 class="text-2xl font-semibold text-gray-900 mb-6">API Endpoints</h2>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded mr-3">POST</span>
-                            <code class="text-sm text-gray-700">/api/biometric/register-options</code>
-                        </div>
-                        <span class="text-xs text-gray-500">Get registration challenge</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded mr-3">POST</span>
-                            <code class="text-sm text-gray-700">/api/biometric/register-verify</code>
-                        </div>
-                        <span class="text-xs text-gray-500">Verify registration</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded mr-3">POST</span>
-                            <code class="text-sm text-gray-700">/api/biometric/login-options</code>
-                        </div>
-                        <span class="text-xs text-gray-500">Get login challenge</span>
-                    </div>
-                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                        <div>
-                            <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded mr-3">POST</span>
-                            <code class="text-sm text-gray-700">/api/biometric/login-verify</code>
-                        </div>
-                        <span class="text-xs text-gray-500">Verify login</span>
-                    </div>
-                </div>
+        <div style="background: white; border: 1px solid #e1e3e5; border-radius: 12px; padding: 1.5rem;">
+            <h2 style="margin: 0 0 1rem 0; font-size: 16px; font-weight: 600; color: #202223;">API Endpoints</h2>
+            
+            <div class="api-endpoint">
+                <span class="method-badge method-post">POST</span>
+                <code>/api/biometric/register-options</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">Get registration challenge</div>
+            </div>
+            
+            <div class="api-endpoint">
+                <span class="method-badge method-post">POST</span>
+                <code>/api/biometric/register-verify</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">Verify and store credential</div>
+            </div>
+            
+            <div class="api-endpoint">
+                <span class="method-badge method-post">POST</span>
+                <code>/api/biometric/login-options</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">Get authentication challenge</div>
+            </div>
+            
+            <div class="api-endpoint">
+                <span class="method-badge method-post">POST</span>
+                <code>/api/biometric/login-verify</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">Verify and login user</div>
+            </div>
+            
+            <div class="api-endpoint">
+                <span class="method-badge method-get">GET</span>
+                <code>/api/biometric/credentials</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">List user's credentials</div>
+            </div>
+            
+            <div class="api-endpoint" style="margin-bottom: 0;">
+                <span class="method-badge method-delete">DELETE</span>
+                <code>/api/biometric/credentials/{id}</code>
+                <div style="margin-top: 0.5rem; color: #6d7175; font-size: 11px;">Delete credential</div>
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="text-center mt-12 text-gray-500 text-sm">
-            <p>Powered by Laravel {{ app()->version() }} • WebAuthn/FIDO2 • Shopify Integration</p>
+        <div style="margin-top: 2rem; text-align: center; color: #6d7175; font-size: 12px;">
+            Powered by Laravel {{ app()->version() }} • WebAuthn/FIDO2 • Shopify Integration
         </div>
     </div>
 </body>
