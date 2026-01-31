@@ -71,7 +71,8 @@ class BiometricAuthController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate registration options'
+                'message' => 'Failed to generate registration options: ' . $e->getMessage(),
+                'error' => $e->getMessage() // Add for debugging
             ], 500);
         }
     }
