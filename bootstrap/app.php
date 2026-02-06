@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Add CORS headers for cross-origin requests (Shopify integration)
+        $middleware->appendToGroup('web', \App\Http\Middleware\AddCorsHeaders::class);
         // Allow Shopify to embed the app in iframe
         $middleware->appendToGroup('web', \App\Http\Middleware\AllowShopifyEmbedding::class);
         // Register biometric enrollment popup injection middleware for web routes
