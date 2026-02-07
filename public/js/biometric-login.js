@@ -229,23 +229,28 @@
             return;
         }
 
-        // Find login form
-        const loginForm = document.querySelector('form[action*="login"]') ||
-                         document.querySelector('form input[type="password"]')?.closest('form') ||
-                         document.querySelector('form input[name="email"]')?.closest('form');
-
-        if (!loginForm) {
-            log('No login form found');
-            return;
-        }
-
         // Check if button already injected
         if (document.querySelector('.biometric-login-button')) {
             log('Biometric button already exists');
             return;
         }
 
-        log('Login form found, injecting biometric button');
+        // Find login form or email input (Shopify uses different structure)
+        const loginForm = document.querySelector('form[action*="login"]') ||
+                         document.querySelector('form input[type="password"]')?.closest('form') ||
+                         document.querySelector('form input[name="email"]')?.closest('form');
+        
+        // Shopify-specific: Look for the email input directly
+        const emailInput = document.querySelector('#customer-authentication-web-email') ||
+                          document.querySelector('input[type="email"]') ||
+                          document.querySelector('input[name="customer[email]"]');
+
+        if (!loginForm && !emailInput) {
+            log('No login form or email input found');
+            return;
+        }
+
+        log('Login form or email input found, injecting biometric button');
 
         const deviceText = getDeviceCapabilityText();
 
