@@ -43,6 +43,21 @@ Route::prefix('api/biometric')->name('api.biometric.')->group(function () {
     })->middleware('auth')->name('enrollment.complete');
 });
 
+// Shopify Integration API Routes
+Route::prefix('api/shopify')->name('api.shopify.')->group(function () {
+    // Customer sync endpoint - creates/updates user from Shopify customer data
+    Route::post('/sync-customer', [App\Http\Controllers\ShopifyController::class, 'syncCustomer'])
+        ->name('sync.customer');
+    
+    // Check if customer has biometric enrolled
+    Route::post('/check-enrollment', [App\Http\Controllers\ShopifyController::class, 'checkEnrollment'])
+        ->name('check.enrollment');
+    
+    // Get authenticated session for Shopify customer
+    Route::post('/get-session', [App\Http\Controllers\ShopifyController::class, 'getSession'])
+        ->name('get.session');
+});
+
 // Customer Authentication Routes
 Route::prefix('customer')->name('customer.')->group(function () {
     // Guest routes
