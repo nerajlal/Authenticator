@@ -1,0 +1,66 @@
+<!-- 
+  Shopify Theme Integration - theme.liquid
+  Add this code to your theme.liquid file before </head>
+-->
+
+<!-- Biometric Authentication Configuration -->
+<script>
+  // Configure the API endpoint for your Laravel backend
+  // IMPORTANT: Replace with your actual domain
+  {% comment %}
+    Option 1: Same domain with subdirectory
+    window.biometricApiBase = 'https://{{ shop.domain }}/auth/api/biometric';
+    
+    Option 2: Subdomain
+    window.biometricApiBase = 'https://auth.{{ shop.domain }}/api/biometric';
+    
+    Option 3: Separate domain
+    window.biometricApiBase = 'https://biometric-auth.yourdomain.com/api/biometric';
+  {% endcomment %}
+  
+  window.biometricApiBase = 'https://{{ shop.domain }}/auth/api/biometric';
+  
+  {% if customer %}
+    // Pass logged-in customer data to biometric script
+    window.shopifyCustomerId = '{{ customer.id }}';
+    window.shopifyCustomerEmail = '{{ customer.email }}';
+    window.shopifyCustomerName = '{{ customer.name }}';
+    window.isShopifyStore = true;
+    
+    console.log('Shopify customer detected:', {
+      id: '{{ customer.id }}',
+      email: '{{ customer.email }}'
+    });
+  {% else %}
+    window.isShopifyStore = true;
+    console.log('No customer logged in');
+  {% endif %}
+</script>
+
+<!-- Load Biometric Authentication Script -->
+<!-- IMPORTANT: Replace with your actual script URL -->
+<script src="https://{{ shop.domain }}/auth/js/biometric-login.js" defer></script>
+<!-- OR if using subdomain: -->
+<!-- <script src="https://auth.{{ shop.domain }}/js/biometric-login.js" defer></script> -->
+
+<!-- Optional: Custom Styling for Biometric Components -->
+<style>
+  /* Customize biometric login button */
+  .biometric-login-button {
+    /* Match your theme's primary button style */
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%) !important;
+    font-family: var(--font-body-family) !important;
+  }
+  
+  /* Customize biometric settings container on account page */
+  .biometric-settings-container {
+    background: var(--color-background-secondary) !important;
+    border: 1px solid var(--color-border) !important;
+    font-family: var(--font-body-family) !important;
+  }
+  
+  /* Customize enrollment popup (if enabled) */
+  .biometric-enrollment-popup {
+    font-family: var(--font-body-family) !important;
+  }
+</style>

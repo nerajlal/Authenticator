@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BiometricAuthController;
+use App\Http\Controllers\ShopifyController;
 
 /*
 |--------------------------------------------------------------------------

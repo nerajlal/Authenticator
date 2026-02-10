@@ -42,6 +42,16 @@ class InjectBiometricEnrollmentPopup
             return $response;
         }
 
+        // Check if this is a Shopify customer (disable popup for Shopify)
+        // Shopify customers should use account page enrollment only
+        if ($user->shopify_customer_id) {
+            \Illuminate\Support\Facades\Log::info('Shopify customer detected, skipping popup (use account page)', [
+                'user_id' => $user->id,
+                'shopify_customer_id' => $user->shopify_customer_id
+            ]);
+            return $response;
+        }
+
         // Check if we should show enrollment popup
         $shouldShowEnrollment = session('biometric_enrollment_pending', false);
         

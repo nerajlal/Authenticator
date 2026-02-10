@@ -371,6 +371,36 @@
             acceptButton.disabled = true;
             acceptButton.textContent = '🔄 Setting up...';
 
+            // For Shopify customers, authenticate first
+            if (SHOPIFY_CONFIG.isShopify && SHOPIFY_CONFIG.customerId && SHOPIFY_CONFIG.customerEmail) {
+                log('Authenticating Shopify customer...');
+
+                try {
+                    const authResponse = await fetch(CONFIG.apiBase.replace('/biometric', '') + '/shopify/get-session', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            shopify_customer_id: SHOPIFY_CONFIG.customerId,
+                            email: SHOPIFY_CONFIG.customerEmail
+                        })
+                    });
+
+                    if (!authResponse.ok) {
+                        throw new Error('Failed to authenticate Shopify customer');
+                    }
+
+                    const authData = await authResponse.json();
+                    log('Shopify customer authenticated:', authData);
+                } catch (authError) {
+                    log('Shopify authentication error:', authError);
+                    throw new Error('Please log in to your Shopify account first');
+                }
+            }
+
             log('Requesting registration options...');
 
             // Get registration options from server

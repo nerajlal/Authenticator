@@ -1,0 +1,81 @@
+<!-- 
+  Shopify Login Page Template
+  File: templates/customers/login.liquid
+  
+  This is an EXAMPLE showing how the biometric button will be injected.
+  You don't need to modify this file - the script auto-injects the button!
+-->
+
+<div class="customer-login">
+  <h1>{{ 'customer.login.title' | t }}</h1>
+  
+  <!-- 
+    BIOMETRIC LOGIN BUTTON WILL BE INJECTED HERE AUTOMATICALLY
+    The script looks for the login form and injects the button above it.
+    
+    You'll see:
+    - Biometric login button (Face ID/Touch ID/Fingerprint)
+    - "or use password" divider
+    - Standard email/password form below
+  -->
+  
+  {% form 'customer_login' %}
+    {{ form.errors | default_errors }}
+    
+    <div class="form-group">
+      <label for="CustomerEmail">{{ 'customer.login.email' | t }}</label>
+      <input
+        type="email"
+        name="customer[email]"
+        id="CustomerEmail"
+        autocomplete="email"
+        {% if form.email %}value="{{ form.email }}"{% endif %}
+        placeholder="{{ 'customer.login.email' | t }}"
+      >
+    </div>
+    
+    <div class="form-group">
+      <label for="CustomerPassword">{{ 'customer.login.password' | t }}</label>
+      <input
+        type="password"
+        name="customer[password]"
+        id="CustomerPassword"
+        autocomplete="current-password"
+        placeholder="{{ 'customer.login.password' | t }}"
+      >
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        {{ 'customer.login.sign_in' | t }}
+      </button>
+    </div>
+    
+    <div class="form-footer">
+      <a href="{{ routes.account_recover_url }}">
+        {{ 'customer.login.forgot_password' | t }}
+      </a>
+    </div>
+  {% endform %}
+  
+  <div class="customer-register-link">
+    <p>{{ 'customer.login.new_customer' | t }}</p>
+    <a href="{{ routes.account_register_url }}" class="btn btn-secondary">
+      {{ 'customer.login.create_account' | t }}
+    </a>
+  </div>
+</div>
+
+<!-- 
+  WHAT HAPPENS:
+  
+  1. Script detects login form
+  2. Creates biometric button with device-specific text:
+     - iOS: "Login with Face ID or Touch ID"
+     - Android: "Login with Fingerprint"
+     - Mac: "Login with Touch ID"
+     - Windows: "Login with Windows Hello"
+  3. Injects button ABOVE the form
+  4. Adds "or use password" divider
+  5. Customer can click biometric button OR use email/password
+-->

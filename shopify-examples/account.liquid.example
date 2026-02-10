@@ -1,0 +1,130 @@
+<!-- 
+  Shopify Account Page Template
+  File: templates/customers/account.liquid
+  
+  This is an EXAMPLE showing how the biometric settings will be injected.
+  You don't need to modify this file - the script auto-injects the settings!
+-->
+
+<div class="customer-account">
+  <h1>{{ 'customer.account.title' | t }}</h1>
+  
+  <div class="account-details">
+    <!-- Customer Information -->
+    <div class="account-section">
+      <h2>{{ 'customer.account.details' | t }}</h2>
+      <p>{{ customer.name }}</p>
+      <p>{{ customer.email }}</p>
+    </div>
+    
+    <!-- 
+      BIOMETRIC LOGIN SETTINGS WILL BE INJECTED HERE AUTOMATICALLY
+      The script looks for .account-details and injects settings section.
+      
+      For FIRST-TIME users (no biometric enrolled):
+      - Shows "Biometric Login" section
+      - "Enable fingerprint or Face ID for faster login"
+      - "Enable Biometric Login" button
+      
+      For RETURNING users (already enrolled):
+      - Shows "Biometric Login" section
+      - Lists registered devices (e.g., "iPhone 15 Pro")
+      - "Add Another Device" button
+      - "Remove" button for each device
+    -->
+    
+    <!-- Order History -->
+    <div class="account-section">
+      <h2>{{ 'customer.orders.title' | t }}</h2>
+      {% if customer.orders.size > 0 %}
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>{{ 'customer.orders.order_number' | t }}</th>
+              <th>{{ 'customer.orders.date' | t }}</th>
+              <th>{{ 'customer.orders.total' | t }}</th>
+              <th>{{ 'customer.orders.status' | t }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in customer.orders %}
+              <tr>
+                <td><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
+                <td>{{ order.created_at | date: format: 'date' }}</td>
+                <td>{{ order.total_price | money }}</td>
+                <td>{{ order.financial_status_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>{{ 'customer.orders.none' | t }}</p>
+      {% endif %}
+    </div>
+    
+    <!-- Addresses -->
+    <div class="account-section">
+      <h2>{{ 'customer.addresses.title' | t }}</h2>
+      <a href="{{ routes.account_addresses_url }}" class="btn btn-secondary">
+        {{ 'customer.addresses.manage' | t }}
+      </a>
+    </div>
+  </div>
+  
+  <!-- Logout -->
+  <div class="account-logout">
+    <a href="{{ routes.account_logout_url }}" class="btn btn-secondary">
+      {{ 'customer.account.log_out' | t }}
+    </a>
+  </div>
+</div>
+
+<!-- 
+  WHAT HAPPENS:
+  
+  SCENARIO 1: First-time user (no biometric enrolled)
+  ------------------------------------------------
+  1. Script detects .account-details container
+  2. Creates "Biometric Login" section
+  3. Shows explanation text
+  4. Shows "Enable Biometric Login" button
+  5. Customer clicks button
+  6. Device prompts for Face ID/Touch ID/Fingerprint
+  7. Biometric registered
+  8. Section updates to show registered device
+  
+  SCENARIO 2: Returning user (already enrolled)
+  --------------------------------------------
+  1. Script detects .account-details container
+  2. Fetches list of registered devices from API
+  3. Shows "Biometric Login" section
+  4. Lists all registered devices:
+     - Device name (e.g., "iPhone 15 Pro")
+     - Registration date
+     - "Remove" button
+  5. Shows "Add Another Device" button
+  6. Customer can add more devices or remove existing ones
+-->
+
+<!-- 
+  MANUAL INTEGRATION (Optional):
+  
+  If the script doesn't auto-detect your account page structure,
+  you can manually add a container:
+-->
+
+<!-- 
+<div class="account-details">
+  <div class="account-section">
+    <h2>Account Information</h2>
+    <!-- Your existing account content -->
+  </div>
+  
+  <!-- Biometric settings will inject here -->
+  <div id="biometric-settings-placeholder"></div>
+  
+  <div class="account-section">
+    <!-- More account content -->
+  </div>
+</div>
+-->
