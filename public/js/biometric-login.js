@@ -19,6 +19,10 @@
             console.log('[Biometric Auth]', ...args);
         }
     }
+    
+    // DEBUG: Confirm script load
+    console.log('Biometric Script Loaded');
+    // alert('Biometric Script Loaded'); // Uncomment if console is hard to check
 
     // Utility: Get CSRF token
     function getCsrfToken() {
