@@ -15,6 +15,16 @@ Route::get('/diagnostic', function () {
     return view('diagnostic');
 })->middleware('auth')->name('diagnostic');
 
+// Biometric Enrollment & Auth Pages (redirect-based flow)
+Route::prefix('biometric')->name('biometric.')->group(function () {
+    Route::get('/enroll', [App\Http\Controllers\BiometricEnrollmentController::class, 'showEnrollment'])
+        ->name('enroll');
+    Route::get('/auth', [App\Http\Controllers\BiometricEnrollmentController::class, 'showAuth'])
+        ->name('auth');
+    Route::post('/auth-success', [App\Http\Controllers\BiometricEnrollmentController::class, 'handleAuthSuccess'])
+        ->name('auth.success');
+});
+
 // Biometric Authentication API Routes (using web middleware for session support)
 Route::prefix('api/biometric')->name('api.biometric.')->group(function () {
     
