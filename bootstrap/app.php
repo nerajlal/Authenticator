@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Disable CSRF for biometric API routes (external access from Shopify)
         $middleware->validateCsrfTokens(except: [
             'api/biometric/*',
+            'api/shopify/*',
             'customer/logout' // Also exclude logout if needed
         ]);
     })
