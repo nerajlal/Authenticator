@@ -373,10 +373,17 @@
 
             // For Shopify customers, authenticate first
             if (SHOPIFY_CONFIG.isShopify && SHOPIFY_CONFIG.customerId && SHOPIFY_CONFIG.customerEmail) {
-                log('Authenticating Shopify customer...');
+                log('Authenticating Shopify customer...', {
+                    customerId: SHOPIFY_CONFIG.customerId,
+                    email: SHOPIFY_CONFIG.customerEmail,
+                    apiBase: CONFIG.apiBase
+                });
 
                 try {
-                    const authResponse = await fetch(CONFIG.apiBase.replace('/biometric', '') + '/shopify/get-session', {
+                    const authUrl = CONFIG.apiBase.replace('/biometric', '') + '/shopify/get-session';
+                    log('Auth URL:', authUrl);
+
+                    const authResponse = await fetch(authUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -389,15 +396,19 @@
                         })
                     });
 
-                    if (!authResponse.ok) {
-                        throw new Error('Failed to authenticate Shopify customer');
-                    }
+                    log('Auth response status:', authResponse.status);
 
                     const authData = await authResponse.json();
-                    log('Shopify customer authenticated:', authData);
+                    log('Auth response data:', authData);
+
+                    if (!authResponse.ok || !authData.success) {
+                        throw new Error(authData.message || 'Failed to authenticate Shopify customer');
+                    }
+
+                    log('Shopify customer authenticated successfully:', authData);
                 } catch (authError) {
                     log('Shopify authentication error:', authError);
-                    throw new Error('Please log in to your Shopify account first');
+                    throw new Error('Authentication failed: ' + authError.message);
                 }
             }
 
