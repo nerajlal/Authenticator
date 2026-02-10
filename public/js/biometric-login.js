@@ -594,6 +594,19 @@
             return;
         }
 
+        // Don't inject on login or register pages
+        const currentPath = window.location.pathname.toLowerCase();
+        if (currentPath.includes('/login') || currentPath.includes('/register') || currentPath.includes('/sign')) {
+            log('On login/register page, skipping account settings injection');
+            return;
+        }
+
+        // For Shopify, only inject if customer is logged in
+        if (SHOPIFY_CONFIG.isShopify && !SHOPIFY_CONFIG.customerId) {
+            log('Shopify customer not logged in, skipping account settings');
+            return;
+        }
+
         // Look for account page indicators
         // Method 1: Look for standard Shopify account containers
         let accountContainer = document.querySelector('.account-details') ||
