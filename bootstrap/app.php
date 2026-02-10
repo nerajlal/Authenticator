@@ -18,6 +18,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', \App\Http\Middleware\AllowShopifyEmbedding::class);
         // Register biometric enrollment popup injection middleware for web routes
         $middleware->appendToGroup('web', \App\Http\Middleware\InjectBiometricEnrollmentPopup::class);
+        
+        // Disable CSRF for biometric API routes (external access from Shopify)
+        $middleware->validateCsrfTokens(except: [
+            'api/biometric/*',
+            'customer/logout' // Also exclude logout if needed
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

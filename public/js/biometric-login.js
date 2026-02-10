@@ -520,6 +520,65 @@
         }
     }
 
+    // Inject settings into Account page
+    function injectAccountSettings() {
+        if (!isWebAuthnSupported()) return;
+
+        // Look for account details container (Shopify standard themes)
+        const accountDetails = document.querySelector('.account-details') || 
+                              document.querySelector('.customer__details') ||
+                              document.querySelector('.my-account__details');
+                              
+        if (!accountDetails) return;
+        
+        if (document.querySelector('.biometric-settings-container')) return;
+        
+        log('Account page detected, creating settings section');
+        
+        const container = document.createElement('div');
+        container.className = 'biometric-settings-container';
+        container.style.cssText = `
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f4f6f8;
+            border-radius: 8px;
+            border: 1px solid #dfe3e8;
+        `;
+        
+        container.innerHTML = `
+            <h3 style="margin-top: 0; font-size: 1.1rem; color: #212b36;">Biometric Login</h3>
+            <p style="margin-bottom: 1rem; color: #637381;">Enable fingerprint or Face ID for faster login.</p>
+            <button class="biometric-enable-btn" style="
+                padding: 0.75rem 1.5rem;
+                background: linear-gradient(135deg, #5c6ac4 0%, #4959bd 100%);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+            ">Enable Biometric Login</button>
+        `;
+        
+        const btn = container.querySelector('.biometric-enable-btn');
+        btn.addEventListener('click', () => {
+             // Re-use logic: show popup or trigger enrollment directly
+             // We'll create a dummy popup object to reuse handleBiometricEnrollment
+             const popup = document.createElement('div');
+             popup.innerHTML = '<div class="msg"></div>'; 
+             document.body.appendChild(popup); // Temp attach
+             
+             // Create mock buttons
+             const acceptBtn = btn;
+             const skipBtn = document.createElement('button'); // dummy
+             
+             handleBiometricEnrollment(acceptBtn, skipBtn, popup.querySelector('.msg'));
+             
+             // Cleanup after success/fail handled by existing function logic
+        });
+        
+        accountDetails.appendChild(container);
+    }
+
     // Initialize
     function init() {
         log('Initializing biometric authentication...');
@@ -532,15 +591,19 @@
         // Check for enrollment popup
         checkEnrollmentPending();
 
-        // Inject biometric button into login forms
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', injectBiometricButton);
-        } else {
+        const runInjections = () => {
             injectBiometricButton();
+            injectAccountSettings();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', runInjections);
+        } else {
+            runInjections();
         }
 
         // Also try after a short delay (for dynamic content)
-        setTimeout(injectBiometricButton, 1000);
+        setTimeout(runInjections, 1000);
 
         log('Biometric authentication initialized');
     }
