@@ -9,7 +9,7 @@
 
     // Configuration
     const CONFIG = {
-        apiBase: window.location.origin + '/api/biometric',
+        apiBase: window.biometricApiBase || window.location.origin + '/api/biometric',
         debug: true
     };
 
