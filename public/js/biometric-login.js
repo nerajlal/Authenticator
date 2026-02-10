@@ -4,7 +4,7 @@
  * Uses WebAuthn for fingerprint and Face ID authentication
  */
 
-(function() {
+(function () {
     'use strict';
 
     // Configuration
@@ -13,13 +13,20 @@
         debug: true
     };
 
+    // Shopify Configuration (set by theme)
+    const SHOPIFY_CONFIG = {
+        customerId: window.shopifyCustomerId || null,
+        customerEmail: window.shopifyCustomerEmail || null,
+        isShopify: window.isShopifyStore || false
+    };
+
     // Utility: Log debug messages
     function log(...args) {
         if (CONFIG.debug) {
             console.log('[Biometric Auth]', ...args);
         }
     }
-    
+
     // DEBUG: Confirm script load
     console.log('Biometric Script Loaded');
     // alert('Biometric Script Loaded'); // Uncomment if console is hard to check
@@ -33,13 +40,28 @@
     // Utility: Make API request
     async function apiRequest(endpoint, data = {}) {
         try {
+            // Add Shopify customer info if available
+            if (SHOPIFY_CONFIG.customerId) {
+                data.shopify_customer_id = SHOPIFY_CONFIG.customerId;
+            }
+            if (SHOPIFY_CONFIG.customerEmail && !data.email) {
+                data.email = SHOPIFY_CONFIG.customerEmail;
+            }
+
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+
+            // Only add CSRF token if it exists (not needed for Shopify)
+            const csrfToken = getCsrfToken();
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            }
+
             const response = await fetch(CONFIG.apiBase + endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken(),
-                    'Accept': 'application/json'
-                },
+                headers: headers,
                 credentials: 'include',
                 body: JSON.stringify(data)
             });
@@ -59,13 +81,13 @@
     // Check if WebAuthn is supported
     function isWebAuthnSupported() {
         return window.PublicKeyCredential !== undefined &&
-               navigator.credentials !== undefined;
+            navigator.credentials !== undefined;
     }
 
     // Detect device capability and return appropriate text
     function getDeviceCapabilityText() {
         const userAgent = navigator.userAgent.toLowerCase();
-        
+
         if (/iphone|ipad|ipod/.test(userAgent)) {
             // iOS devices - could be Face ID or Touch ID
             return {
@@ -92,7 +114,7 @@
                 enrollment: 'Would you like to enable Windows Hello for faster login next time?'
             };
         }
-        
+
         return {
             button: 'Login with Biometric',
             icon: '🔐',
@@ -147,13 +169,13 @@
             type: credential.type,
             response: {
                 clientDataJSON: base64UrlEncode(credential.response.clientDataJSON),
-                attestationObject: credential.response.attestationObject ? 
+                attestationObject: credential.response.attestationObject ?
                     base64UrlEncode(credential.response.attestationObject) : undefined,
-                authenticatorData: credential.response.authenticatorData ? 
+                authenticatorData: credential.response.authenticatorData ?
                     base64UrlEncode(credential.response.authenticatorData) : undefined,
-                signature: credential.response.signature ? 
+                signature: credential.response.signature ?
                     base64UrlEncode(credential.response.signature) : undefined,
-                userHandle: credential.response.userHandle ? 
+                userHandle: credential.response.userHandle ?
                     base64UrlEncode(credential.response.userHandle) : undefined
             }
         };
@@ -162,17 +184,17 @@
     // Biometric Login Handler
     async function handleBiometricLogin(button) {
         const originalText = button.textContent;
-        
+
         try {
             // Show loading state
             button.disabled = true;
             button.textContent = '🔄 Authenticating...';
 
             log('Requesting login options...');
-            
+
             // Get authentication options from server
             const { options } = await apiRequest('/login-options');
-            
+
             log('Login options received:', options);
 
             // Prepare options for WebAuthn
@@ -212,11 +234,11 @@
 
         } catch (error) {
             log('Login error:', error);
-            
+
             // Show error message
             button.textContent = '✗ ' + (error.message || 'Authentication failed');
             button.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-            
+
             // Reset button after 3 seconds
             setTimeout(() => {
                 button.textContent = originalText;
@@ -241,13 +263,13 @@
 
         // Find login form or email input (Shopify uses different structure)
         const loginForm = document.querySelector('form[action*="login"]') ||
-                         document.querySelector('form input[type="password"]')?.closest('form') ||
-                         document.querySelector('form input[name="email"]')?.closest('form');
-        
+            document.querySelector('form input[type="password"]')?.closest('form') ||
+            document.querySelector('form input[name="email"]')?.closest('form');
+
         // Shopify-specific: Look for the email input directly
         const emailInput = document.querySelector('#customer-authentication-web-email') ||
-                          document.querySelector('input[type="email"]') ||
-                          document.querySelector('input[name="customer[email]"]');
+            document.querySelector('input[type="email"]') ||
+            document.querySelector('input[name="customer[email]"]');
 
         if (!loginForm && !emailInput) {
             log('No login form or email input found');
@@ -322,7 +344,7 @@
                 z-index: 1;
             ">or use password</span>
         `;
-        
+
         const line = document.createElement('div');
         line.style.cssText = `
             position: absolute;
@@ -391,15 +413,15 @@
             setTimeout(() => {
                 popup.remove();
                 // Clear the session flag
-                apiRequest('/enrollment-complete').catch(() => {});
+                apiRequest('/enrollment-complete').catch(() => { });
             }, 2000);
 
         } catch (error) {
             log('Enrollment error:', error);
-            
+
             acceptButton.textContent = 'Try Again';
             acceptButton.disabled = false;
-            
+
             alert('Failed to set up biometric login: ' + (error.message || 'Unknown error'));
         }
     }
@@ -506,7 +528,7 @@
         skipButton.addEventListener('click', () => {
             overlay.remove();
             // Clear the session flag
-            apiRequest('/enrollment-complete').catch(() => {});
+            apiRequest('/enrollment-complete').catch(() => { });
         });
 
         log('Enrollment popup displayed');
@@ -526,19 +548,52 @@
 
     // Inject settings into Account page
     function injectAccountSettings() {
-        if (!isWebAuthnSupported()) return;
+        if (!isWebAuthnSupported()) {
+            log('WebAuthn not supported, skipping account settings');
+            return;
+        }
 
-        // Look for account details container (Shopify standard themes)
-        const accountDetails = document.querySelector('.account-details') || 
-                              document.querySelector('.customer__details') ||
-                              document.querySelector('.my-account__details');
-                              
-        if (!accountDetails) return;
-        
+        // Look for account page indicators
+        // Method 1: Look for standard Shopify account containers
+        let accountContainer = document.querySelector('.account-details') ||
+            document.querySelector('.customer__details') ||
+            document.querySelector('.my-account__details') ||
+            document.querySelector('[data-customer-account]') ||
+            document.querySelector('.customer-account') ||
+            document.querySelector('#customer-account');
+
+        // Method 2: Look for "Account details" or "Account" heading
+        if (!accountContainer) {
+            const headings = document.querySelectorAll('h1, h2, h3');
+            for (const heading of headings) {
+                const text = heading.textContent.trim().toLowerCase();
+                if (text === 'account details' || text === 'account' || text === 'my account') {
+                    // Found account heading, use its parent or next sibling
+                    accountContainer = heading.parentElement;
+                    log('Account page detected via heading:', heading.textContent);
+                    break;
+                }
+            }
+        }
+
+        // Method 3: Check URL - if we're on /account page, use main content area
+        if (!accountContainer && window.location.pathname.includes('/account')) {
+            accountContainer = document.querySelector('main') ||
+                document.querySelector('.main-content') ||
+                document.querySelector('#main') ||
+                document.querySelector('body');
+            log('Account page detected via URL, using main content area');
+        }
+
+        if (!accountContainer) {
+            log('Account page not detected - no suitable container found');
+            return;
+        }
+
         if (document.querySelector('.biometric-settings-container')) return;
-        
+
         log('Account page detected, creating settings section');
-        
+
         const container = document.createElement('div');
         container.className = 'biometric-settings-container';
         container.style.cssText = `
@@ -548,7 +603,7 @@
             border-radius: 8px;
             border: 1px solid #dfe3e8;
         `;
-        
+
         container.innerHTML = `
             <h3 style="margin-top: 0; font-size: 1.1rem; color: #212b36;">Biometric Login</h3>
             <p style="margin-bottom: 1rem; color: #637381;">Enable fingerprint or Face ID for faster login.</p>
@@ -562,25 +617,25 @@
                 font-weight: 600;
             ">Enable Biometric Login</button>
         `;
-        
+
         const btn = container.querySelector('.biometric-enable-btn');
         btn.addEventListener('click', () => {
-             // Re-use logic: show popup or trigger enrollment directly
-             // We'll create a dummy popup object to reuse handleBiometricEnrollment
-             const popup = document.createElement('div');
-             popup.innerHTML = '<div class="msg"></div>'; 
-             document.body.appendChild(popup); // Temp attach
-             
-             // Create mock buttons
-             const acceptBtn = btn;
-             const skipBtn = document.createElement('button'); // dummy
-             
-             handleBiometricEnrollment(acceptBtn, skipBtn, popup.querySelector('.msg'));
-             
-             // Cleanup after success/fail handled by existing function logic
+            // Re-use logic: show popup or trigger enrollment directly
+            // We'll create a dummy popup object to reuse handleBiometricEnrollment
+            const popup = document.createElement('div');
+            popup.innerHTML = '<div class="msg"></div>';
+            document.body.appendChild(popup); // Temp attach
+
+            // Create mock buttons
+            const acceptBtn = btn;
+            const skipBtn = document.createElement('button'); // dummy
+
+            handleBiometricEnrollment(acceptBtn, skipBtn, popup.querySelector('.msg'));
+
+            // Cleanup after success/fail handled by existing function logic
         });
-        
-        accountDetails.appendChild(container);
+
+        accountContainer.appendChild(container);
     }
 
     // Initialize
