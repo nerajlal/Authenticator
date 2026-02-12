@@ -191,6 +191,11 @@
                 btnLoading.classList.remove('hidden');
                 hideMessage();
 
+                // Check if WebAuthn is supported
+                if (!window.PublicKeyCredential) {
+                    throw new Error('Biometric authentication is not supported on this device or browser');
+                }
+
                 // Request registration options
                 const optionsResponse = await fetch(apiBase + '/register-options', {
                     method: 'POST',
@@ -203,7 +208,8 @@
                 });
 
                 if (!optionsResponse.ok) {
-                    throw new Error('Failed to get registration options');
+                    const errorData = await optionsResponse.json();
+                    throw new Error(errorData.message || 'Failed to get registration options');
                 }
 
                 const { options } = await optionsResponse.json();
@@ -223,10 +229,34 @@
                     }))
                 };
 
+                console.log('Creating credential with options:', publicKeyOptions);
+
                 // Trigger biometric prompt
-                const credential = await navigator.credentials.create({
-                    publicKey: publicKeyOptions
-                });
+                let credential;
+                try {
+                    credential = await navigator.credentials.create({
+                        publicKey: publicKeyOptions
+                    });
+                } catch (credError) {
+                    console.error('Credential creation error:', credError);
+                    
+                    // Handle specific WebAuthn errors
+                    if (credError.name === 'NotAllowedError') {
+                        throw new Error('Biometric authentication was cancelled or timed out. Please try again.');
+                    } else if (credError.name === 'InvalidStateError') {
+                        throw new Error('You have already enrolled this device. Please use the existing biometric login.');
+                    } else if (credError.name === 'NotSupportedError') {
+                        throw new Error('Your device does not support biometric authentication.');
+                    } else if (credError.name === 'SecurityError') {
+                        throw new Error('Security error: Please ensure you are using HTTPS.');
+                    } else {
+                        throw new Error('Failed to create biometric credential: ' + credError.message);
+                    }
+                }
+
+                if (!credential) {
+                    throw new Error('No credential was created');
+                }
 
                 // Prepare credential data
                 const credentialData = {
@@ -252,7 +282,8 @@
                 });
 
                 if (!verifyResponse.ok) {
-                    throw new Error('Failed to verify credential');
+                    const errorData = await verifyResponse.json();
+                    throw new Error(errorData.message || 'Failed to verify credential');
                 }
 
                 // Success!
