@@ -215,7 +215,12 @@
                     user: {
                         ...options.user,
                         id: Uint8Array.from(atob(options.user.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
-                    }
+                    },
+                    // Convert excludeCredentials IDs to ArrayBuffer
+                    excludeCredentials: (options.excludeCredentials || []).map(cred => ({
+                        ...cred,
+                        id: Uint8Array.from(atob(cred.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0))
+                    }))
                 };
 
                 // Trigger biometric prompt
