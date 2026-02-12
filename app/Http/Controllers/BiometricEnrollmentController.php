@@ -161,6 +161,37 @@ class BiometricEnrollmentController extends Controller
     }
 
     /**
+     * Show Shopify login bridge page
+     */
+    public function showShopifyLogin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'return_url' => 'required|url',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect('/')->with('error', 'Invalid parameters');
+        }
+
+        // Validate return URL
+        if (!$this->isValidReturnUrl($request->return_url)) {
+            return redirect('/')->with('error', 'Invalid return URL');
+        }
+
+        // Extract shop domain from return URL
+        $parsed = parse_url($request->return_url);
+        $shopDomain = $parsed['host'] ?? '';
+
+        return view('biometric.shopify-login', [
+            'email' => $request->email,
+            'shopifyDomain' => $shopDomain,
+            'shopifyLoginUrl' => 'https://' . $shopDomain . '/account/login',
+            'returnUrl' => $request->return_url,
+        ]);
+    }
+
+    /**
      * Sync Shopify customer to local database
      */
     private function syncShopifyCustomer(

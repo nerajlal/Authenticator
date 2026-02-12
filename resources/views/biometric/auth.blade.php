@@ -239,10 +239,11 @@
 
                 // Success!
                 loading.classList.add('hidden');
-                showMessage('Authentication successful! Redirecting to Shopify...', 'success');
+                showMessage('Authentication successful! Redirecting...', 'success');
                 
+                // Redirect to Shopify login bridge page
                 setTimeout(() => {
-                    window.location.href = returnUrl;
+                    window.location.href = '{{ url('/biometric/shopify-login') }}?email=' + encodeURIComponent(result.email) + '&return_url=' + encodeURIComponent(returnUrl);
                 }, 1500);
 
             } catch (error) {

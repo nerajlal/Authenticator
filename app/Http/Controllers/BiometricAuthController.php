@@ -227,12 +227,8 @@ class BiometricAuthController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email
-                ],
-                'redirect' => url('/dashboard')
+                'email' => $user->email,
+                'user_id' => $user->id
             ]);
 
         } catch (\Exception $e) {
