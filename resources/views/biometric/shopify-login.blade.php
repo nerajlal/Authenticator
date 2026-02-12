@@ -150,25 +150,20 @@
 
         <div class="info-note">
             <h3>🔐 One More Step</h3>
-            <p>To complete your Shopify login, you'll need to:</p>
-            <ol>
-                <li>Enter your Shopify password on the next page</li>
-                <li>Your browser may auto-fill it for you</li>
-                <li>Click "Sign In" to access your account</li>
-            </ol>
+            <p>You'll be redirected to Shopify. If you're not already logged in, you'll need to enter your password to complete the login.</p>
         </div>
 
         <a href="{{ $returnUrl }}" class="btn btn-primary" id="continueBtn">
-            Continue to Shopify Login
+            Continue to Shopify
         </a>
 
         <p class="countdown">
-            Auto-redirecting in <span id="countdown">5</span> seconds...
+            Auto-redirecting in <span id="countdown">3</span> seconds...
         </p>
     </div>
 
     <script>
-        let seconds = 5;
+        let seconds = 3;
         const countdownEl = document.getElementById('countdown');
         const continueBtn = document.getElementById('continueBtn');
 
