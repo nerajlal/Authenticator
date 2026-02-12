@@ -183,9 +183,9 @@ class BiometricEnrollmentController extends Controller
         $parsed = parse_url($request->return_url);
         $shopDomain = $parsed['host'] ?? '';
         
-        // Try direct redirect to account page - Shopify will redirect to login if not authenticated
-        // This is cleaner than going to login page directly
-        $accountUrl = 'https://' . $shopDomain . '/account';
+        // Redirect to account page with login_hint parameter
+        // Shopify will redirect to login if not authenticated, and login_hint will pre-fill the email
+        $accountUrl = 'https://' . $shopDomain . '/account?login_hint=' . urlencode($request->email);
 
         return view('biometric.shopify-login', [
             'email' => $request->email,
