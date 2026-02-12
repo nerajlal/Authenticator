@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logging In - {{ config('app.name') }}</title>
+    <title>Authentication Successful - {{ config('app.name') }}</title>
     <style>
         * {
             margin: 0;
@@ -60,26 +60,39 @@
             margin-bottom: 32px;
         }
 
-        .btn {
-            width: 100%;
-            padding: 16px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            border: none;
+        .info-box {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
             border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            text-align: left;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .info-box p {
+            color: #2c5282;
+            font-size: 14px;
+            margin: 0;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        .info-note {
+            background: #fef5e7;
+            border: 1px solid #f9e79f;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 24px;
+        }
+
+        .info-note p {
+            color: #7d6608;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .loading-text {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 20px;
         }
 
         .loading-dots {
@@ -89,8 +102,8 @@
 
         .loading-dots span {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: #667eea;
             margin: 0 2px;
@@ -113,25 +126,6 @@
                 transform: scale(1);
             }
         }
-
-        .info-box {
-            background: #ebf8ff;
-            border: 1px solid #90cdf4;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-            text-align: left;
-        }
-
-        .info-box p {
-            color: #2c5282;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -144,51 +138,24 @@
             <p><strong>Account:</strong> {{ $email }}</p>
         </div>
 
-        <button id="loginBtn" class="btn btn-primary" onclick="submitLogin()">
-            <span id="btnText">Continue to Your Account</span>
-            <span id="btnLoading" class="loading-dots hidden">
+        <div class="info-note">
+            <p>💡 <strong>One more step:</strong> You'll be redirected to Shopify to complete your login. Your email will be pre-filled.</p>
+        </div>
+
+        <p class="loading-text">
+            Redirecting to Shopify
+            <span class="loading-dots">
                 <span></span>
                 <span></span>
                 <span></span>
             </span>
-        </button>
-
-        <!-- Hidden form that will submit to Shopify -->
-        <form id="shopifyLoginForm" method="post" action="{{ $shopifyLoginUrl }}" style="display: none;">
-            <input type="hidden" name="form_type" value="customer_login">
-            <input type="hidden" name="utf8" value="✓">
-            <input type="hidden" name="customer[email]" value="{{ $email }}">
-            <input type="hidden" name="customer[password]" value="" id="passwordField">
-            <input type="hidden" name="return_url" value="/account">
-        </form>
-
-        <p style="margin-top: 20px; color: #718096; font-size: 14px;">
-            Click the button above to complete your login to Shopify
         </p>
     </div>
 
     <script>
-        const shopifyDomain = @json($shopifyDomain);
-        const email = @json($email);
-
-        function submitLogin() {
-            const loginBtn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('btnText');
-            const btnLoading = document.getElementById('btnLoading');
-            
-            // Update button state
-            loginBtn.disabled = true;
-            btnText.classList.add('hidden');
-            btnLoading.classList.remove('hidden');
-
-            // Submit the form
-            // The browser's password manager will auto-fill the password if saved
-            document.getElementById('shopifyLoginForm').submit();
-        }
-
-        // Auto-submit after 2 seconds
+        // Redirect to Shopify login page after 2 seconds
         setTimeout(function() {
-            submitLogin();
+            window.location.href = '{{ $returnUrl }}';
         }, 2000);
     </script>
 </body>
