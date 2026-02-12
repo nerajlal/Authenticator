@@ -65,7 +65,7 @@
             border: 1px solid #90cdf4;
             border-radius: 8px;
             padding: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             text-align: left;
         }
 
@@ -73,90 +73,119 @@
             color: #2c5282;
             font-size: 14px;
             margin: 0;
+            line-height: 1.5;
         }
 
         .info-note {
-            background: #fef5e7;
-            border: 1px solid #f9e79f;
+            background: #fff5e6;
+            border: 1px solid #ffd699;
             border-radius: 8px;
-            padding: 12px;
+            padding: 16px;
             margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .info-note h3 {
+            color: #996600;
+            font-size: 15px;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .info-note p {
             color: #7d6608;
-            font-size: 13px;
+            font-size: 14px;
             margin: 0;
+            line-height: 1.5;
         }
 
-        .loading-text {
+        .info-note ol {
+            color: #7d6608;
+            font-size: 14px;
+            margin: 8px 0 0 20px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .countdown {
             color: #718096;
             font-size: 14px;
-            margin-top: 20px;
-        }
-
-        .loading-dots {
-            display: inline-block;
-            margin-left: 8px;
-        }
-
-        .loading-dots span {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #667eea;
-            margin: 0 2px;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
-
-        .loading-dots span:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-
-        .loading-dots span:nth-child(2) {
-            animation-delay: -0.16s;
-        }
-
-        @keyframes bounce {
-            0%, 80%, 100% {
-                transform: scale(0);
-            }
-            40% {
-                transform: scale(1);
-            }
+            margin-top: 16px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="success-icon">✅</div>
-        <h1>Authentication Successful!</h1>
-        <p class="subtitle">You've been verified with biometric authentication</p>
+        <h1>Biometric Verification Complete!</h1>
+        <p class="subtitle">You've been successfully verified</p>
 
         <div class="info-box">
-            <p><strong>Account:</strong> {{ $email }}</p>
+            <p><strong>Verified Account:</strong> {{ $email }}</p>
         </div>
 
         <div class="info-note">
-            <p>💡 <strong>One more step:</strong> You'll be redirected to Shopify to complete your login. Your email will be pre-filled.</p>
+            <h3>🔐 One More Step</h3>
+            <p>To complete your Shopify login, you'll need to:</p>
+            <ol>
+                <li>Enter your Shopify password on the next page</li>
+                <li>Your browser may auto-fill it for you</li>
+                <li>Click "Sign In" to access your account</li>
+            </ol>
         </div>
 
-        <p class="loading-text">
-            Redirecting to Shopify
-            <span class="loading-dots">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
+        <a href="{{ $returnUrl }}" class="btn btn-primary" id="continueBtn">
+            Continue to Shopify Login
+        </a>
+
+        <p class="countdown">
+            Auto-redirecting in <span id="countdown">5</span> seconds...
         </p>
     </div>
 
     <script>
-        // Redirect to Shopify login page after 2 seconds
-        setTimeout(function() {
-            window.location.href = '{{ $returnUrl }}';
-        }, 2000);
+        let seconds = 5;
+        const countdownEl = document.getElementById('countdown');
+        const continueBtn = document.getElementById('continueBtn');
+
+        const interval = setInterval(() => {
+            seconds--;
+            countdownEl.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(interval);
+                window.location.href = '{{ $returnUrl }}';
+            }
+        }, 1000);
+
+        // Allow manual click to skip countdown
+        continueBtn.addEventListener('click', (e) => {
+            clearInterval(interval);
+        });
     </script>
 </body>
 </html>
