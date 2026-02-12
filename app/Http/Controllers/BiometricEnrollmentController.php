@@ -182,12 +182,14 @@ class BiometricEnrollmentController extends Controller
         // Extract shop domain from return URL
         $parsed = parse_url($request->return_url);
         $shopDomain = $parsed['host'] ?? '';
+        
+        // Build Shopify login URL with checkout_url parameter to redirect after login
+        $shopifyLoginUrl = 'https://' . $shopDomain . '/account/login?checkout_url=' . urlencode('/account');
 
         return view('biometric.shopify-login', [
             'email' => $request->email,
             'shopifyDomain' => $shopDomain,
-            'shopifyLoginUrl' => 'https://' . $shopDomain . '/account/login',
-            'returnUrl' => $request->return_url,
+            'returnUrl' => $shopifyLoginUrl,
         ]);
     }
 
