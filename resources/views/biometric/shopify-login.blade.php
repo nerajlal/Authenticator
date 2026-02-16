@@ -150,16 +150,21 @@
 
         <div class="info-note">
             <h3>🔐 One More Step</h3>
-            <p>You'll be redirected to Shopify. If you're not already logged in, you'll need to enter your password to complete the login.</p>
+            <p>Redirecting you to Shopify. Your email will be pre-filled - just enter your password to complete login.</p>
         </div>
 
-        <a href="{{ $returnUrl }}" class="btn btn-primary" id="continueBtn">
+        <button class="btn btn-primary" id="continueBtn" onclick="submitForm()">
             Continue to Shopify
-        </a>
+        </button>
 
         <p class="countdown">
             Auto-redirecting in <span id="countdown">3</span> seconds...
         </p>
+
+        <!-- Hidden form to submit to Shopify with pre-filled email -->
+        <form id="shopifyForm" method="GET" action="https://{{ $shopifyDomain }}/account/login" style="display: none;">
+            <input type="text" name="customer[email]" value="{{ $email }}">
+        </form>
     </div>
 
     <script>
@@ -167,13 +172,20 @@
         const countdownEl = document.getElementById('countdown');
         const continueBtn = document.getElementById('continueBtn');
 
+        function submitForm() {
+            // Try to open Shopify login in same window
+            // The form will submit with email pre-filled
+            const form = document.getElementById('shopifyForm');
+            form.submit();
+        }
+
         const interval = setInterval(() => {
             seconds--;
             countdownEl.textContent = seconds;
             
             if (seconds <= 0) {
                 clearInterval(interval);
-                window.location.href = '{{ $returnUrl }}';
+                submitForm();
             }
         }, 1000);
 
