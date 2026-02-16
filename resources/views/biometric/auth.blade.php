@@ -227,24 +227,23 @@
                 });
 
                 if (!verifyResponse.ok) {
-                    const error = await verifyResponse.json();
-                    throw new Error(error.message || 'Authentication failed');
+                    const errorData = await verifyResponse.json();
+                    throw new Error(errorData.message || 'Authentication failed');
                 }
 
                 const result = await verifyResponse.json();
 
-                if (!result.success) {
-                    throw new Error(result.message || 'Authentication failed');
-                }
-
-                // Success!
-                loading.classList.add('hidden');
-                showMessage('Authentication successful! Redirecting...', 'success');
+                // Success! Redirect directly to Shopify login page
+                showMessage('Authentication successful! Redirecting to Shopify...', 'success');
                 
-                // Redirect to Shopify login bridge page
+                // Extract shop domain from return URL
+                const returnUrl = new URL(@json($returnUrl));
+                const shopDomain = returnUrl.hostname;
+                
+                // Redirect directly to Shopify login page
                 setTimeout(() => {
-                    window.location.href = '{{ url('/biometric/shopify-login') }}?email=' + encodeURIComponent(result.email) + '&return_url=' + encodeURIComponent(returnUrl);
-                }, 1500);
+                    window.location.href = `https://${shopDomain}/account/login`;
+                }, 1000);
 
             } catch (error) {
                 console.error('Authentication error:', error);
