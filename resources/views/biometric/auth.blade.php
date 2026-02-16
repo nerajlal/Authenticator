@@ -233,16 +233,17 @@
 
                 const result = await verifyResponse.json();
 
-                // Success! Redirect to Shopify login page
+                // Success! Redirect to Shopify login page with email pre-filled
                 showMessage('Authentication successful! Redirecting to Shopify...', 'success');
                 
                 // Extract shop domain from return URL
                 const returnUrl = new URL(@json($returnUrl));
                 const shopDomain = returnUrl.hostname;
                 
-                // Redirect to Shopify login page
+                // Redirect to Shopify login page with email parameter
                 setTimeout(() => {
-                    window.location.href = `https://${shopDomain}/account/login`;
+                    const loginUrl = `https://${shopDomain}/account/login?checkout_url=/account&email=${encodeURIComponent(result.email)}`;
+                    window.location.href = loginUrl;
                 }, 1000);
 
             } catch (error) {
