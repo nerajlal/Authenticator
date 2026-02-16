@@ -161,6 +161,29 @@ class BiometricEnrollmentController extends Controller
     }
 
     /**
+     * Show login bridge page with email display
+     */
+    public function showLoginBridge(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'shop_domain' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect('/')->with('error', 'Invalid parameters');
+        }
+
+        $shopDomain = $request->shop_domain;
+        $shopifyLoginUrl = "https://{$shopDomain}/account/login";
+
+        return view('biometric.login-bridge', [
+            'email' => $request->email,
+            'shopifyLoginUrl' => $shopifyLoginUrl,
+        ]);
+    }
+
+    /**
      * Show Shopify login bridge page
      */
     public function showShopifyLogin(Request $request)

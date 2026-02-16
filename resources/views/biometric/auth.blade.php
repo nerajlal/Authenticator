@@ -233,17 +233,19 @@
 
                 const result = await verifyResponse.json();
 
-                // Success! Redirect to Shopify login page with email pre-filled
-                showMessage('Authentication successful! Redirecting to Shopify...', 'success');
+                // Success! Redirect to bridge page that shows email
+                showMessage('Authentication successful! Redirecting...', 'success');
                 
                 // Extract shop domain from return URL
                 const returnUrl = new URL(@json($returnUrl));
                 const shopDomain = returnUrl.hostname;
                 
-                // Redirect to Shopify login page with email parameter
+                // Redirect to bridge page with email
                 setTimeout(() => {
-                    const loginUrl = `https://${shopDomain}/account/login?checkout_url=/account&email=${encodeURIComponent(result.email)}`;
-                    window.location.href = loginUrl;
+                    const bridgeUrl = new URL('{{ route("biometric.login.bridge") }}');
+                    bridgeUrl.searchParams.set('email', result.email);
+                    bridgeUrl.searchParams.set('shop_domain', shopDomain);
+                    window.location.href = bridgeUrl.toString();
                 }, 1000);
 
             } catch (error) {

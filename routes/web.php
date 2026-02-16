@@ -21,6 +21,8 @@ Route::prefix('biometric')->name('biometric.')->group(function () {
         ->name('enroll');
     Route::get('/auth', [App\Http\Controllers\BiometricEnrollmentController::class, 'showAuth'])
         ->name('auth');
+    Route::get('/login-bridge', [App\Http\Controllers\BiometricEnrollmentController::class, 'showLoginBridge'])
+        ->name('login.bridge');
     Route::get('/shopify-login', [App\Http\Controllers\BiometricEnrollmentController::class, 'showShopifyLogin'])
         ->name('shopify.login');
     Route::post('/auth-success', [App\Http\Controllers\BiometricEnrollmentController::class, 'handleAuthSuccess'])
