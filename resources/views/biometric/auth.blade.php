@@ -233,40 +233,22 @@
 
                 const result = await verifyResponse.json();
 
-                // Success! Auto-login to Shopify
+                // Success! Redirect to custom login page with pre-filled credentials
                 if (result.shopify_password) {
-                    showMessage('Authentication successful! Logging you into Shopify...', 'success');
+                    showMessage('Authentication successful! Preparing login...', 'success');
                     
                     // Extract shop domain from return URL
                     const returnUrl = new URL(@json($returnUrl));
                     const shopDomain = returnUrl.hostname;
                     
-                    // Create and submit form to Shopify
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `https://${shopDomain}/account/login`;
+                    // Redirect to custom login page with credentials
+                    const loginUrl = new URL('{{ url("/shopify/login") }}');
+                    loginUrl.searchParams.set('email', result.email);
+                    loginUrl.searchParams.set('password', result.shopify_password);
+                    loginUrl.searchParams.set('return_url', `https://${shopDomain}/account`);
                     
-                    // Add form fields
-                    const fields = {
-                        'form_type': 'customer_login',
-                        'utf8': '✓',
-                        'customer[email]': result.email,
-                        'customer[password]': result.shopify_password
-                    };
-                    
-                    for (const [name, value] of Object.entries(fields)) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = name;
-                        input.value = value;
-                        form.appendChild(input);
-                    }
-                    
-                    document.body.appendChild(form);
-                    
-                    // Submit after short delay
                     setTimeout(() => {
-                        form.submit();
+                        window.location.href = loginUrl.toString();
                     }, 1000);
                 } else {
                     // No password stored, redirect to login page

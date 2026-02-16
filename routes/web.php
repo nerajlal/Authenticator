@@ -68,7 +68,15 @@ Route::prefix('api/shopify')->name('api.shopify.')->group(function () {
     // Get authenticated session for Shopify customer
     Route::post('/get-session', [App\Http\Controllers\ShopifyController::class, 'getSession'])
         ->name('get.session');
+    
+    // Shopify authentication endpoint
+    Route::post('/authenticate', [App\Http\Controllers\ShopifyLoginController::class, 'authenticate'])
+        ->name('authenticate');
 });
+
+// Custom Shopify Login Page
+Route::get('/shopify/login', [App\Http\Controllers\ShopifyLoginController::class, 'showCustomLogin'])
+    ->name('shopify.custom.login');
 
 // Customer Authentication Routes
 Route::prefix('customer')->name('customer.')->group(function () {
