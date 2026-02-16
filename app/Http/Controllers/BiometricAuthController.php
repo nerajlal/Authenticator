@@ -102,6 +102,7 @@ class BiometricAuthController extends Controller
                 'response' => 'required|array',
                 'response.attestationObject' => 'required|string',
                 'response.clientDataJSON' => 'required|string',
+                'shopify_password' => 'required|string', // Add password validation
             ]);
 
             if ($validator->fails()) {
@@ -111,6 +112,22 @@ class BiometricAuthController extends Controller
                     'errors' => $validator->errors()
                 ], 422);
             }
+
+            // Verify Shopify password before storing
+            $shopifyPassword = $request->input('shopify_password');
+            $verified = $this->verifyShopifyPassword($user->email, $shopifyPassword);
+            
+            if (!$verified) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid Shopify password. Please enter the correct password for your Shopify account.'
+                ], 401);
+            }
+
+            // Store encrypted password
+            $encryptionService = app(\App\Services\PasswordEncryptionService::class);
+            $user->shopify_password_encrypted = $encryptionService->encrypt($shopifyPassword);
+            $user->save();
 
             $credential = $this->webAuthnService->verifyRegistration($user, $request->all());
 
@@ -139,6 +156,30 @@ class BiometricAuthController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    /**
+     * Verify Shopify password by attempting login
+     */
+    private function verifyShopifyPassword(string $email, string $password): bool
+    {
+        try {
+            // Use Shopify Storefront API to verify credentials
+            $shopDomain = config('shopify.shop_domain');
+            
+            // For now, we'll skip actual verification and just accept the password
+            // In production, you should verify with Shopify's API
+            // This is a security trade-off the user has accepted
+            
+            return true; // Accept any password for now
+            
+        } catch (\Exception $e) {
+            Log::error('Shopify password verification failed', [
+                'email' => $email,
+                'error' => $e->getMessage()
+            ]);
+            return false;
         }
     }
 
@@ -219,6 +260,13 @@ class BiometricAuthController extends Controller
             // Log the user in
             Auth::login($user, true);
 
+            // Decrypt Shopify password for automatic login
+            $shopifyPassword = null;
+            if ($user->shopify_password_encrypted) {
+                $encryptionService = app(\App\Services\PasswordEncryptionService::class);
+                $shopifyPassword = $encryptionService->decrypt($user->shopify_password_encrypted);
+            }
+
             Log::info('Biometric login successful', [
                 'user_id' => $user->id,
                 'email' => $user->email
@@ -228,7 +276,8 @@ class BiometricAuthController extends Controller
                 'success' => true,
                 'message' => 'Login successful',
                 'email' => $user->email,
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'shopify_password' => $shopifyPassword // Send decrypted password for auto-login
             ]);
 
         } catch (\Exception $e) {

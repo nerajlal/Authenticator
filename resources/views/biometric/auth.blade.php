@@ -233,17 +233,52 @@
 
                 const result = await verifyResponse.json();
 
-                // Success! Redirect directly to Shopify login page
-                showMessage('Authentication successful! Redirecting to Shopify...', 'success');
-                
-                // Extract shop domain from return URL
-                const returnUrl = new URL(@json($returnUrl));
-                const shopDomain = returnUrl.hostname;
-                
-                // Redirect directly to Shopify login page
-                setTimeout(() => {
-                    window.location.href = `https://${shopDomain}/account/login`;
-                }, 1000);
+                // Success! Auto-login to Shopify
+                if (result.shopify_password) {
+                    showMessage('Authentication successful! Logging you into Shopify...', 'success');
+                    
+                    // Extract shop domain from return URL
+                    const returnUrl = new URL(@json($returnUrl));
+                    const shopDomain = returnUrl.hostname;
+                    
+                    // Create and submit form to Shopify
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `https://${shopDomain}/account/login`;
+                    
+                    // Add form fields
+                    const fields = {
+                        'form_type': 'customer_login',
+                        'utf8': '✓',
+                        'customer[email]': result.email,
+                        'customer[password]': result.shopify_password
+                    };
+                    
+                    for (const [name, value] of Object.entries(fields)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = name;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+                    
+                    document.body.appendChild(form);
+                    
+                    // Submit after short delay
+                    setTimeout(() => {
+                        form.submit();
+                    }, 1000);
+                } else {
+                    // No password stored, redirect to login page
+                    showMessage('Authentication successful! Redirecting to Shopify...', 'success');
+                    
+                    const returnUrl = new URL(@json($returnUrl));
+                    const shopDomain = returnUrl.hostname;
+                    
+                    setTimeout(() => {
+                        window.location.href = `https://${shopDomain}/account/login`;
+                    }, 1000);
+                }
 
             } catch (error) {
                 console.error('Authentication error:', error);
