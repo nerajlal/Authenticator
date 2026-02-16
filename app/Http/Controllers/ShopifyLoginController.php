@@ -36,10 +36,15 @@ class ShopifyLoginController extends Controller
             return redirect('/')->with('error', 'Invalid login parameters');
         }
 
+        // Extract shop domain from return URL
+        $parsed = parse_url($request->return_url);
+        $shopDomain = $parsed['host'] ?? config('shopify.shop_domain');
+
         return view('biometric.custom-login', [
             'email' => $request->email,
             'password' => $request->password,
             'returnUrl' => $request->return_url,
+            'shopifyDomain' => $shopDomain,
         ]);
     }
 

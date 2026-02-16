@@ -161,86 +161,37 @@
             🔐 Identity verified via biometric authentication
         </div>
 
-        <form id="loginForm">
+        <form id="loginForm" method="POST" action="https://{{ $shopifyDomain }}/account/login">
+            <input type="hidden" name="form_type" value="customer_login">
+            <input type="hidden" name="utf8" value="✓">
+            
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" value="{{ $email }}" readonly>
+                <input type="email" id="email" name="customer[email]" value="{{ $email }}" readonly>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" value="{{ $password }}" readonly>
+                <input type="password" id="password" name="customer[password]" value="{{ $password }}">
+            </div>
+
+            <div class="info-note" style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 13px; color: #0050b3;">
+                💡 Your credentials are pre-filled. Click the button below to complete your login.
             </div>
 
             <div id="message" class="message hidden"></div>
 
             <button type="submit" class="btn btn-primary" id="loginBtn">
                 <span id="btnText">Login to Shopify</span>
-                <span id="btnLoading" class="loading hidden"></span>
             </button>
         </form>
     </div>
 
     <script>
-        const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const btnText = document.getElementById('btnText');
-        const btnLoading = document.getElementById('btnLoading');
-        const messageEl = document.getElementById('message');
-
-        function showMessage(text, type) {
-            messageEl.textContent = text;
-            messageEl.className = `message ${type}`;
-            messageEl.classList.remove('hidden');
-        }
-
-        function hideMessage() {
-            messageEl.classList.add('hidden');
-        }
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            try {
-                loginBtn.disabled = true;
-                btnText.classList.add('hidden');
-                btnLoading.classList.remove('hidden');
-                hideMessage();
-
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-
-                const response = await fetch('{{ url("/api/shopify/authenticate") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Authentication failed');
-                }
-
-                // Success! Redirect to Shopify
-                showMessage('Login successful! Redirecting to Shopify...', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = data.redirect_url;
-                }, 1000);
-
-            } catch (error) {
-                console.error('Login error:', error);
-                showMessage(error.message, 'error');
-                loginBtn.disabled = false;
-                btnText.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
-            }
-        });
+        // Auto-submit form after short delay
+        setTimeout(() => {
+            document.getElementById('loginForm').submit();
+        }, 1500);
     </script>
 </body>
 </html>
