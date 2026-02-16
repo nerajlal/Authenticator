@@ -156,26 +156,6 @@
             <div class="user-info-value">{{ $user->email }}</div>
         </div>
 
-        <div class="info-note" style="background: #fff5e6; border: 1px solid #ffd699; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: left;">
-            <p style="color: #7d6608; font-size: 14px; margin: 0; line-height: 1.5;">
-                <strong>🔐 One-Time Setup:</strong> Enter your Shopify password below to enable automatic login. Your password will be encrypted and stored securely for future biometric logins.
-            </p>
-        </div>
-
-        <div style="margin-bottom: 20px; text-align: left;">
-            <label for="shopifyPassword" style="display: block; font-size: 14px; color: #4a5568; margin-bottom: 8px; font-weight: 500;">
-                Shopify Password
-            </label>
-            <input 
-                type="password" 
-                id="shopifyPassword" 
-                class="password-input"
-                placeholder="Enter your Shopify password"
-                required
-                style="width: 100%; padding: 12px 16px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 8px; transition: border-color 0.3s;"
-            />
-        </div>
-
         <div id="message" class="message hidden"></div>
 
         <button id="enrollBtn" class="btn btn-primary">
@@ -206,14 +186,6 @@
         // Enroll button
         enrollBtn.addEventListener('click', async () => {
             try {
-                // Get password value
-                const shopifyPassword = document.getElementById('shopifyPassword').value;
-                
-                if (!shopifyPassword) {
-                    showMessage('Please enter your Shopify password', 'error');
-                    return;
-                }
-
                 enrollBtn.disabled = true;
                 btnText.classList.add('hidden');
                 btnLoading.classList.remove('hidden');
@@ -286,7 +258,7 @@
                     throw new Error('No credential was created');
                 }
 
-                // Prepare credential data with Shopify password
+                // Prepare credential data
                 const credentialData = {
                     id: credential.id,
                     rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
@@ -294,8 +266,7 @@
                     response: {
                         clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(credential.response.clientDataJSON))),
                         attestationObject: btoa(String.fromCharCode(...new Uint8Array(credential.response.attestationObject)))
-                    },
-                    shopify_password: shopifyPassword // Include password
+                    }
                 };
 
                 // Verify credential

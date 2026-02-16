@@ -233,34 +233,17 @@
 
                 const result = await verifyResponse.json();
 
-                // Success! Redirect to custom login page with pre-filled credentials
-                if (result.shopify_password) {
-                    showMessage('Authentication successful! Preparing login...', 'success');
-                    
-                    // Extract shop domain from return URL
-                    const returnUrl = new URL(@json($returnUrl));
-                    const shopDomain = returnUrl.hostname;
-                    
-                    // Redirect to custom login page with credentials
-                    const loginUrl = new URL('{{ url("/shopify/login") }}');
-                    loginUrl.searchParams.set('email', result.email);
-                    loginUrl.searchParams.set('password', result.shopify_password);
-                    loginUrl.searchParams.set('return_url', `https://${shopDomain}/account`);
-                    
-                    setTimeout(() => {
-                        window.location.href = loginUrl.toString();
-                    }, 1000);
-                } else {
-                    // No password stored, redirect to login page
-                    showMessage('Authentication successful! Redirecting to Shopify...', 'success');
-                    
-                    const returnUrl = new URL(@json($returnUrl));
-                    const shopDomain = returnUrl.hostname;
-                    
-                    setTimeout(() => {
-                        window.location.href = `https://${shopDomain}/account/login`;
-                    }, 1000);
-                }
+                // Success! Redirect to Shopify login page
+                showMessage('Authentication successful! Redirecting to Shopify...', 'success');
+                
+                // Extract shop domain from return URL
+                const returnUrl = new URL(@json($returnUrl));
+                const shopDomain = returnUrl.hostname;
+                
+                // Redirect to Shopify login page
+                setTimeout(() => {
+                    window.location.href = `https://${shopDomain}/account/login`;
+                }, 1000);
 
             } catch (error) {
                 console.error('Authentication error:', error);

@@ -22,7 +22,6 @@ class User extends Authenticatable
         'email',
         'password',
         'shopify_customer_id',
-        'shopify_password_encrypted',
     ];
 
     /**
@@ -33,7 +32,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'shopify_password_encrypted',
     ];
 
     /**
